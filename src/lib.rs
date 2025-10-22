@@ -435,7 +435,7 @@ fn run_monte_carlo_simulation(
 
             for &ret in &simulation_returns {
                 let position_size = equity * risk_fraction;
-                let trade_pl = position_size * (ret / 100.0); // Assuming returns are in percent
+                let trade_pl = position_size * ret; // ret is already a profit/loss value
                 daily_pl += trade_pl;
                 equity += trade_pl;
 

@@ -14,27 +14,35 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 import uvicorn
 
-from . import (
-    Trade,
-    PerformanceMetrics,
-    ChallengeParams,
-    parse_mt5_csv,
-    parse_mt5_xml,
-    calculate_performance_metrics,
-    calculate_kelly_criterion,
-    calculate_optimal_f,
-    run_monte_carlo_simulation,
-)
-from .mt5_live_data import (
-    start_live_streaming,
-    stop_live_streaming,
-    get_live_account_data,
-    connect_mt5_historical,
-    disconnect_mt5_historical,
-    fetch_historical_trades,
-    get_mt5_account_history,
-    get_mt5_symbol_info,
-    get_mt5_available_symbols,
+try:
+    from . import (
+        Trade,
+        PerformanceMetrics,
+        ChallengeParams,
+        parse_mt5_csv,
+        parse_mt5_xml,
+        calculate_performance_metrics,
+        calculate_kelly_criterion,
+        calculate_optimal_f,
+        run_monte_carlo_simulation,
+    )
+except ImportError:
+    # Fallback for when Rust extension is not built
+    Trade = None
+    PerformanceMetrics = None
+    ChallengeParams = None
+    parse_mt5_csv = None
+    parse_mt5_xml = None
+    calculate_performance_metrics = None
+    calculate_kelly_criterion = None
+    calculate_optimal_f = None
+    run_monte_carlo_simulation = None
+
+from .mt5_integration import (
+    connect_mt5,
+    disconnect_mt5,
+    get_mt5_account_info,
+    get_mt5_connection_status,
 )
 
 # Pydantic models for API
@@ -127,6 +135,9 @@ app.add_middleware(
 
 def parse_trades_from_data(trade_data: List[Dict[str, Any]]) -> List[Trade]:
     """Convert API trade data to Trade objects"""
+    if Trade is None:
+        raise ValueError("Rust extension not available")
+
     trades = []
     for data in trade_data:
         trade = Trade(
@@ -159,8 +170,12 @@ async def upload_trade_history(
 
         # Parse and validate
         if format == "csv":
+            if parse_mt5_csv is None:
+                raise HTTPException(status_code=500, detail="Rust extension not available")
             trades = parse_mt5_csv(content_str)
         else:
+            if parse_mt5_xml is None:
+                raise HTTPException(status_code=500, detail="Rust extension not available")
             trades = parse_mt5_xml(content_str)
 
         if not trades:
@@ -168,8 +183,12 @@ async def upload_trade_history(
 
         # Save file temporarily
         import uuid
+        import tempfile
+        import os
+
         file_id = str(uuid.uuid4())
-        file_path = f"/tmp/{file_id}.{format}"
+        temp_dir = tempfile.gettempdir()
+        file_path = os.path.join(temp_dir, f"{file_id}.{format}")
 
         with open(file_path, "wb") as f:
             f.write(content)
@@ -208,11 +227,17 @@ async def analyze_performance(request: AnalysisRequest):
 
         # Determine format from file extension
         if file_path.endswith(".csv"):
+            if parse_mt5_csv is None:
+                raise HTTPException(status_code=500, detail="Rust extension not available")
             trades = parse_mt5_csv(content)
         else:
+            if parse_mt5_xml is None:
+                raise HTTPException(status_code=500, detail="Rust extension not available")
             trades = parse_mt5_xml(content)
 
         # Calculate metrics
+        if calculate_performance_metrics is None:
+            raise HTTPException(status_code=500, detail="Rust extension not available")
         metrics = calculate_performance_metrics(trades)
 
         # Generate equity curve
@@ -249,6 +274,9 @@ async def calculate_kelly(request: KellyRequest):
         win_prob = request.performance_data.get("win_probability", 0.0)
         win_loss_ratio = request.performance_data.get("win_loss_ratio", 0.0)
 
+        if calculate_kelly_criterion is None:
+            raise HTTPException(status_code=500, detail="Rust extension not available")
+
         optimal_fraction = calculate_kelly_criterion(
             win_prob,
             win_loss_ratio,
@@ -273,20 +301,18 @@ async def calculate_kelly(request: KellyRequest):
 async def calculate_optimal_f_endpoint(request: OptimalFRequest):
     """Calculate Optimal F position sizing"""
     try:
+        if calculate_optimal_f is None:
+            raise HTTPException(status_code=500, detail="Rust extension not available")
+
         trades = parse_trades_from_data(request.trade_data)
         optimal_f = calculate_optimal_f(trades, 1000, 1e-6)
 
         # Calculate TWR for the optimal f
-        largest_loss = trades.iter()
-            .map(|t| t.profit)
-            .filter(|&p| p < 0.0)
-            .min_by(|a, b| a.partial_cmp(b).unwrap())
-            .unwrap_or(-1.0)
-            .abs();
+        largest_loss = min((t.profit for t in trades if t.profit < 0.0), default=-1.0, key=abs)
 
-        twr = trades.iter()
-            .map(|trade| 1.0 + optimal_f * (-trade.profit / largest_loss))
-            .product();
+        twr = 1.0
+        for trade in trades:
+            twr *= 1.0 + optimal_f * (-trade.profit / abs(largest_loss))
 
         return OptimalFResponse(
             optimal_f=optimal_f,
@@ -304,6 +330,9 @@ async def optimize_challenge(
 ):
     """Run Monte Carlo optimization for challenge parameters"""
     try:
+        if run_monte_carlo_simulation is None or ChallengeParams is None:
+            raise HTTPException(status_code=500, detail="Rust extension not available")
+
         # Parse challenge parameters
         challenge_params = ChallengeParams(
             account_size=request.challenge_params["account_size"],
@@ -323,16 +352,16 @@ async def optimize_challenge(
 
         for risk_fraction in risk_fractions:
             results = run_monte_carlo_simulation(
-                trades.clone(),
-                challenge_params.clone(),
+                trades,
+                challenge_params,
                 risk_fraction,
                 request.simulation_count
-            );
+            )
 
-            pass_rate = results.get("pass_rate").unwrap_or(0.0);
+            pass_rate = results.get("pass_rate", 0.0)
             if pass_rate > best_pass_rate:
-                best_pass_rate = pass_rate;
-                best_fraction = risk_fraction;
+                best_pass_rate = pass_rate
+                best_fraction = risk_fraction
 
         return OptimizationResponse(
             recommended_fraction=best_fraction,
@@ -352,18 +381,35 @@ async def get_optimization_status(task_id: str):
 
     return background_tasks[task_id]
 
-# MT5 Integration endpoints (simplified for now)
+# MT5 Integration endpoints
 @app.post("/api/v1/mt5/connect", response_model=ConnectionResponse)
-async def connect_mt5(request: ConnectionRequest):
+async def connect_mt5_endpoint(request: ConnectionRequest):
     """Connect to MT5 terminal"""
-    # Placeholder - implement actual MT5 connection
-    return ConnectionResponse(connected=False, account_info=None)
+    try:
+        success, error_msg = connect_mt5(request.timeout)
+        if success:
+            account_info = get_mt5_account_info()
+            return ConnectionResponse(connected=True, account_info=account_info)
+        else:
+            return ConnectionResponse(connected=False, account_info=None)
+    except Exception as e:
+        return ConnectionResponse(connected=False, account_info=None)
 
 @app.get("/api/v1/mt5/account-info", response_model=AccountInfo)
 async def get_account_info():
     """Get MT5 account information"""
-    # Placeholder - implement actual MT5 data retrieval
-    return AccountInfo(balance=0.0, equity=0.0, margin=0.0)
+    try:
+        account_data = get_mt5_account_info()
+        if account_data:
+            return AccountInfo(
+                balance=account_data.get("balance", 0.0),
+                equity=account_data.get("equity", 0.0),
+                margin=account_data.get("margin", 0.0)
+            )
+        else:
+            return AccountInfo(balance=0.0, equity=0.0, margin=0.0)
+    except Exception as e:
+        return AccountInfo(balance=0.0, equity=0.0, margin=0.0)
 
 @app.post("/api/v1/reports/generate", response_model=ReportResponse)
 async def generate_report(request: ReportRequest):

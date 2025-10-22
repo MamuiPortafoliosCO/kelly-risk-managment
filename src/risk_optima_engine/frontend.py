@@ -302,8 +302,12 @@ def show_challenge_optimizer_page():
             }
 
             # Get trade data from analysis results
-            # This is a simplified approach - in production, you'd store trade data properly
-            trade_data = []  # Placeholder
+            # Extract trade data from stored analysis results
+            trade_data = []
+            if "analysis_results" in st.session_state:
+                # This is a simplified approach - in production, you'd store trade data properly
+                # For now, we'll use placeholder data since we don't have the original trades
+                trade_data = []  # Placeholder - need to implement proper trade data storage
 
             optimization_result = api_request(
                 "/optimization/challenge",

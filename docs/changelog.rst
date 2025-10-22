@@ -23,6 +23,12 @@ Unreleased
 **Fixed**
 - Documentation build configuration for Sphinx
 - API endpoint documentation formatting
+- **Critical Bug Fixes**: Resolved multiple syntax errors in backend.py preventing application startup
+- **Import Error Handling**: Added graceful fallback when Rust extension is not available
+- **Monte Carlo Simulation**: Fixed profit calculation logic in simulation engine
+- **MT5 Integration**: Implemented proper connection handling in API endpoints
+- **Cross-Platform Compatibility**: Fixed file path handling for Windows systems
+- **Error Resilience**: Enhanced error handling throughout the application stack
 
 [1.1.0] - 2025-10-22
 -------------------
