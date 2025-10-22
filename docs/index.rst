@@ -7,11 +7,11 @@ Welcome to RiskOptima Engine's documentation!
 ==============================================
 
 .. image:: https://img.shields.io/badge/version-1.1.0-blue.svg
-   :target: https://github.com/your-repo/risk-optima-engine/releases
+   :target: https://github.com/MamuiPortafoliosCO/kelly-risk-managment/releases
    :alt: Version 1.1.0
 
 .. image:: https://readthedocs.org/projects/risk-optima-engine/badge/?version=latest
-   :target: https://risk-optima-engine.readthedocs.io/en/latest/?badge=latest
+   :target: https://kelly-risk-managment.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
 
 **RiskOptima Engine** is a comprehensive, locally-hosted risk analysis and management tool designed for stock market traders using the MetaTrader 5 (MT5) platform. It empowers traders to make data-driven decisions on position sizing by analyzing historical performance and calculating optimal risk parameters.
@@ -67,6 +67,7 @@ Welcome to RiskOptima Engine's documentation!
    :caption: Project Information
 
    changelog
+   audit_report
    contributing
    license
 
@@ -77,6 +78,7 @@ Welcome to RiskOptima Engine's documentation!
 * :doc:`api_reference` - API reference documentation
 * :doc:`examples` - Code examples and tutorials
 * :doc:`changelog` - Version history and updates
+* :doc:`audit_report` - Security and code audit findings
 
 🔍 **Search**
 

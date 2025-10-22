@@ -196,7 +196,7 @@ Este proyecto está bajo la Licencia MIT - ver el archivo :doc:`license` para m�
 🙋 **Soporte**
 --------------
 
-- **Documentación**: https://riskoptima-engine.readthedocs.io/
+- **Documentación**: https://kelly-risk-managment.readthedocs.io/
 - **Issues**: https://github.com/MamuiPortafoliosCO/kelly-risk-managment/issues
 - **Discusiones**: https://github.com/MamuiPortafoliosCO/kelly-risk-managment/discussions
 
