@@ -164,6 +164,26 @@ cargo test
 - **Input Validation**: Comprehensive validation of all user inputs
 
 ## License
+## Documentation
+
+📚 **Complete Documentation**: https://risk-optima-engine.readthedocs.io/
+
+The documentation includes:
+- **Installation Guide**: Step-by-step setup instructions
+- **User Guide**: Complete workflow and feature documentation
+- **API Reference**: Detailed API documentation with examples
+- **Developer Guide**: Contributing guidelines and development setup
+- **Examples**: Code samples and tutorials
+- **Troubleshooting**: Common issues and solutions
+
+## Support
+
+For support and documentation:
+- 📖 **Documentation**: https://risk-optima-engine.readthedocs.io/
+- 🔧 **API Docs**: `http://localhost:8000/docs` when running locally
+- 🐛 **Issues**: GitHub Issues for bug reports
+- 💬 **Discussions**: GitHub Discussions for questions
+- Ensure MT5 terminal is running for live integration features
 
 This project is proprietary software. See LICENSE file for details.
 

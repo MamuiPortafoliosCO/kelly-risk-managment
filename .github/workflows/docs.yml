@@ -1,0 +1,75 @@
+name: Build and Deploy Documentation
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'docs/**'
+      - '.readthedocs.yaml'
+      - 'pyproject.toml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'docs/**'
+      - '.readthedocs.yaml'
+      - 'pyproject.toml'
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install uv
+      run: |
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+    - name: Install dependencies
+      run: |
+        uv sync --only-dev
+        uv pip install -e .[docs]
+
+    - name: Build Rust extension
+      run: |
+        uv run maturin develop
+
+    - name: Build documentation
+      run: |
+        cd docs
+        uv run sphinx-build -b html . _build/html
+
+    - name: Upload documentation artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: documentation
+        path: docs/_build/html/
+        retention-days: 30
+
+  deploy-docs:
+    if: github.ref == 'refs/heads/main'
+    needs: build-docs
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Download documentation artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: documentation
+        path: docs/_build/html/
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: docs/_build/html/
+        cname: docs.risk-optima-engine.com  # Optional: add custom domain

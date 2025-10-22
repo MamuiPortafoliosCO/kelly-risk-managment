@@ -21,6 +21,16 @@ dependencies = [
 
 [project.scripts]
 risk-optima-engine = "risk_optima_engine:main"
+ [project.optional-dependencies]
+ docs = [
+     "sphinx>=5.0.0",
+     "sphinx-rtd-theme>=1.2.0",
+     "myst-parser>=0.18.0",
+     "sphinx-autodoc-typehints>=1.19.0",
+     "sphinx-copybutton>=0.5.0",
+     "sphinx-design>=0.3.0",
+     "sphinxext-opengraph>=0.7.0",
+ ]
 
 [tool.maturin]
 module-name = "risk_optima_engine._core"
