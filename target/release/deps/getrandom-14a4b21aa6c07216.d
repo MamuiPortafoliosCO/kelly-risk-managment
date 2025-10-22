@@ -1,0 +1,11 @@
+d:\Kelly Risk management Took MT5\risk-optima-engine\target\release\deps\libgetrandom-14a4b21aa6c07216.rmeta: C:\Users\W11\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\lib.rs C:\Users\W11\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\error.rs C:\Users\W11\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\util.rs C:\Users\W11\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\error_impls.rs C:\Users\W11\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\windows.rs
+
+d:\Kelly Risk management Took MT5\risk-optima-engine\target\release\deps\libgetrandom-14a4b21aa6c07216.rlib: C:\Users\W11\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\lib.rs C:\Users\W11\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\error.rs C:\Users\W11\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\util.rs C:\Users\W11\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\error_impls.rs C:\Users\W11\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\windows.rs
+
+d:\Kelly Risk management Took MT5\risk-optima-engine\target\release\deps\getrandom-14a4b21aa6c07216.d: C:\Users\W11\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\lib.rs C:\Users\W11\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\error.rs C:\Users\W11\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\util.rs C:\Users\W11\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\error_impls.rs C:\Users\W11\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\windows.rs
+
+C:\Users\W11\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\lib.rs:
+C:\Users\W11\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\error.rs:
+C:\Users\W11\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\util.rs:
+C:\Users\W11\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\error_impls.rs:
+C:\Users\W11\.cargo\registry\src\index.crates.io-6f17d22bba15001f\getrandom-0.2.16\src\windows.rs:

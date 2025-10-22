@@ -1,0 +1,134 @@
+version: '3.8'
+
+services:
+  riskoptima-engine:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    ports:
+      - "8000:8000"   # FastAPI backend
+      - "8501:8501"   # Streamlit frontend
+    environment:
+      - PYTHONPATH=/app/src
+      - PYTHONUNBUFFERED=1
+      - RUST_BACKTRACE=1
+      # MT5 Configuration (when using Wine)
+      - WINEPREFIX=/app/.wine
+      - WINEARCH=win64
+      - DISPLAY=:99
+    volumes:
+      # Mount local MT5 terminal directory (if available)
+      - ./mt5_data:/app/mt5_data:ro
+      # Persistent data
+      - riskoptima_data:/app/data
+      - riskoptima_logs:/app/logs
+      - riskoptima_uploads:/app/uploads
+    networks:
+      - riskoptima-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import risk_optima_engine; print('OK')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    command: ["python", "-m", "risk_optima_engine", "full", "--host", "0.0.0.0"]
+
+  # Optional: X11 server for GUI applications (if needed)
+  xvfb:
+    image: selenium/standalone-chrome:4.8.3
+    ports:
+      - "5900:5900"  # VNC port
+      - "7900:7900"  # noVNC port
+    environment:
+      - VNC_NO_PASSWORD=1
+      - SCREEN_WIDTH=1920
+      - SCREEN_HEIGHT=1080
+    networks:
+      - riskoptima-network
+    profiles:
+      - gui
+
+  # Optional: MT5 Terminal in container (advanced setup)
+  # Note: This requires licensing and proper MT5 setup
+  mt5-terminal:
+    image: mcr.microsoft.com/windows/servercore:ltsc2022
+    # build:
+    #   context: ./mt5-docker
+    #   dockerfile: Dockerfile.mt5
+    ports:
+      - "8222:8222"  # MT5 default port
+    environment:
+      - MT5_LOGIN=your_login
+      - MT5_PASSWORD=your_password
+      - MT5_SERVER=your_server
+    volumes:
+      - mt5_terminal_data:/mt5
+    networks:
+      - riskoptima-network
+    profiles:
+      - mt5
+
+  # Nginx reverse proxy (for production deployment)
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/ssl/certs:ro
+    depends_on:
+      - riskoptima-engine
+    networks:
+      - riskoptima-network
+    profiles:
+      - production
+
+  # PostgreSQL database (for future data persistence)
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=riskoptima
+      - POSTGRES_USER=riskoptima
+      - POSTGRES_PASSWORD=secure_password_change_me
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - riskoptima-network
+    profiles:
+      - database
+
+  # Redis for caching (optional)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - riskoptima-network
+    profiles:
+      - cache
+
+volumes:
+  riskoptima_data:
+    driver: local
+  riskoptima_logs:
+    driver: local
+  riskoptima_uploads:
+    driver: local
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  mt5_terminal_data:
+    driver: local
+
+networks:
+  riskoptima-network:
+    driver: bridge

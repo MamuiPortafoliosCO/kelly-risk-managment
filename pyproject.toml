@@ -1,0 +1,35 @@
+[project]
+name = "risk-optima-engine"
+version = "1.1.0"
+description = "RiskOptima Engine - Quantitative Risk Analysis and Management Tool for MT5 Traders"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "fastapi[all]",
+    "streamlit",
+    "metatrader5",
+    "pandas",
+    "numpy",
+    "scipy",
+    "plotly",
+    "pytest",
+    "uvicorn[standard]",
+    "pydantic",
+    "aiofiles",
+    "python-multipart",
+]
+
+[project.scripts]
+risk-optima-engine = "risk_optima_engine:main"
+
+[tool.maturin]
+module-name = "risk_optima_engine._core"
+python-packages = ["risk_optima_engine"]
+python-source = "src"
+
+[tool.uv]
+cache-keys = [{ file = "pyproject.toml" }, { file = "src/**/*.rs" }, { file = "Cargo.toml" }, { file = "Cargo.lock" }]
+
+[build-system]
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
