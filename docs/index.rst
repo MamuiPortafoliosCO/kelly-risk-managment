@@ -53,6 +53,16 @@ Welcome to RiskOptima Engine's documentation!
    architecture
 
 .. toctree::
+   :maxdepth: 2
+   :caption: Documentación en Español
+
+   README_es
+   installation_es
+   quickstart_es
+   user_guide_es
+   api_reference_es
+
+.. toctree::
    :maxdepth: 1
    :caption: Project Information
 
